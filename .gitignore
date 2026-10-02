@@ -1,0 +1,17 @@
+.DS_Store
+__MACOSX/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Data
+data/
+CheXpert*/
+*.csv
+
+# Training outputs / checkpoints
+*.pth
+*.pt
+*.ckpt
+slurm-*.out
