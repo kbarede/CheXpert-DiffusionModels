@@ -5,8 +5,7 @@ This repository contains the code used to implement and compare a **Denoising Di
 The project focused on X-rays labelled **“No Finding”** and compared the models using generated samples, **Fréchet Inception Distance (FID)**, and **Fréchet Radiomics Distance (FRD)**.
 
 ## Dataset and experimental setup
-
-CheXpert data are not included in this repository and must be obtained separately according to the dataset's access and usage terms.
+This project uses the CheXpert small dataset. The code expects `data_loc` to point to the directory containing: ```CheXpert-v1.0-small/train.csv```. CheXpert data are not included in this repository and must be obtained separately.
 
 - 15,000 “No Finding” chest X-rays
 - 13,000 training images
@@ -27,7 +26,7 @@ Using the same U-Net for DDPM and the original NCSN keeps the architecture fixed
 
 ## Results
 
-Each model variant was used to generate 1,000 images from pure noise. FID and FRD were calculated against a held-out set of 1,000 real images. A second disjoint set of 1,000 real images was used for the real-vs-real baseline.
+Each model variant was used to generate 1,000 images from pure noise. FID and FRD were calculated against a held-out set of 1,000 real images. A second disjoint set of 1,000 real images was used for the real-vs-real baseline. FRDv1 was calculated with use_paper_log=True. All generated images were retained for evaluation (no cherry-picking).
 
 | Comparison | FID | FRD |
 |---|---:|---:|
@@ -72,7 +71,7 @@ Training/generation and FID/FRD evaluation were performed in two separate enviro
 | Model training and generation | 3.9.12 | PyTorch 1.13.0, torchvision 0.14.0, MONAI 0.5.0, NumPy 1.26.2 |
 | FID/FRD evaluation | 3.10.13 | PyTorch 2.1.2, torchvision 0.16.2, torchmetrics 1.5.2, torch-fidelity 0.3.0, frd-score 1.0.1, NumPy 1.26.4 |
 
-The `requirements-lock-*.txt` files are snapshots of the original Conda/container environments. These files are retained for environmental records. The shorter `requirements-training.txt` and `requirements-evaluation.txt` files contain the main portable dependencies used by this project.
+The `requirements-lock-*.txt` files are snapshots of the original Conda/container environments. These files are retained for environmental records. The shorter `requirements-training.txt` and `requirements-evaluation.txt` files contain the main portable dependencies used in this project.
 
 The old MONAI version is intentional: the training code was developed with MONAI 0.5.0, which includes APIs that have since changed or been removed.
 
@@ -90,7 +89,7 @@ python -m ncsn.train
 python -m extended_ncsn.train
 ```
 
-### 3. Generate images
+### 2. Generate images
 
 ```bash
 python -m ddpm.generate_images
@@ -98,12 +97,12 @@ python -m ncsn.generate_images
 python -m extended_ncsn.generate_images
 ```
 
-### 4. Calculate FID and FRD
+### 3. Calculate FID and FRD
 
-Use the evaluation environment, edit the image paths/settings in `calculate_metrics/main.py`, then run:
+Use the evaluation environment, edit the image paths/settings in `calculate_metrics/calculate_fid_frd.py`, then run:
 
 ```bash
-python -m calculate_metrics.main
+python -m calculate_metrics.calculate_fid_frd.py
 ```
 
 The evaluation script compares generated sets with held-out real images and can additionally calculate the real-vs-real baseline.
