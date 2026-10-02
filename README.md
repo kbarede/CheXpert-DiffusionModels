@@ -52,15 +52,15 @@ Among the generated-image sets, DDPM produced the lowest FID and FRD. EMA improv
 
 **NCSN with EMA**
 
-![NCSN EMA generated samples](figures/ncsn_ema_samples.png)
+![NCSN EMA generated samples](figures/ncsn-ema_samples.png)
 
 **Extended NCSN**
 
-![Extended NCSN generated samples](figures/extended_ncsn_samples.png)
+![Extended NCSN generated samples](figures/extended-ncsn_samples.png)
 
 **Extended NCSN with EMA**
 
-![Extended NCSN EMA generated samples](figures/extended_ncsn_ema_samples.png)
+![Extended NCSN EMA generated samples](figures/extended-ncsn-ema_samples.png)
 
 
 ## Environments
