@@ -1,0 +1,13 @@
+# Core FID/FRD evaluation dependencies
+# Original evaluation environment: Python 3.10.13
+# See requirements-lock-evaluation.txt for the full environment snapshot.
+
+torch==2.1.2
+torchvision==0.16.2
+torchmetrics==1.5.2
+torch-fidelity==0.3.0
+frd-score==1.0.1
+numpy==1.26.4
+Pillow==12.3.0
+scipy==1.15.3
+opencv-contrib-python-headless==4.11.0.86
