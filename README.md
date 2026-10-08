@@ -7,10 +7,10 @@ The project focused on X-rays labelled **“No Finding”** and compared the mod
 ## Dataset and experimental setup
 This project uses the CheXpert small dataset. The code expects `data_loc` to point to the directory containing: ```CheXpert-v1.0-small/train.csv```. CheXpert data are not included in this repository and must be obtained separately.
 
-- 15,000 “No Finding” chest X-rays
-- 13,000 training images
-- 2,000 held-out test images
-- Test set split into two disjoint sets of 1,000 images for model evaluation and a real-vs-real baseline
+- 15,000 chest X-ray images from CheXpert, all labeled "No Finding" (no reported pathologies)
+- First 13,000 images used for model training, with the training data shuffled during training
+- Remaining 2,000 images held out as a test set
+- Test set randomly split into two disjoint sets of 1,000 images each for model evaluation and a real-vs-real baseline
 - Image size: 128 × 128
 - Training: 100 epochs, batch size 16, learning rate `1e-4`
 
