@@ -7,10 +7,11 @@ The project focused on X-rays labelled **“No Finding”** and compared the mod
 ## Dataset and experimental setup
 This project uses the CheXpert small dataset. The code expects `data_loc` to point to the directory containing: ```CheXpert-v1.0-small/train.csv```. CheXpert data are not included in this repository and must be obtained separately.
 
-- 15,000 chest X-ray images from CheXpert, all labeled "No Finding" (no reported pathologies)
-- First 13,000 images used for model training, with the training data shuffled during training
-- Remaining 2,000 images held out as a test set
-- Test set randomly split into two disjoint sets of 1,000 images each for model evaluation and a real-vs-real baseline
+- 16,974 (all available) chest X-ray images from CheXpert labeled "No Finding"
+- First 13,000 images used for model training
+- 3,974 images excluded from training and reserved for evaluation
+- 2,974 random real images used as the fixed reference distribution
+- The remaining 1,000 real images used as a disjoint real-vs-real baseline
 - Image size: 128 × 128
 - Training: 100 epochs, batch size 16, learning rate `1e-4`
 
@@ -26,7 +27,24 @@ Using the same U-Net for DDPM and the original NCSN keeps the architecture fixed
 
 ## Results
 
-Each model variant was used to generate 1,000 images from pure noise. FID and FRD were calculated against a held-out set of 1,000 real images. A second disjoint set of 1,000 real images was used for the real-vs-real baseline. FRDv1 was calculated with use_paper_log=True. All generated images were retained for evaluation (no cherry-picking).
+Each model variant was used to generate 1,000 images from pure noise. The primary evaluation compared each generated distribution of 1,000 images with the same fixed reference distribution of 2,974 held-out real images. The remaining 1,000 real images formed an independent, sample-size-matched real-vs-real baseline. FRDv1 was calculated with use_paper_log=True. All generated images were retained for evaluation (no cherry-picking).
+
+### Primary evaluation: 2,974 real reference images vs. 1,000 comparison images
+
+| Comparison | FID | FRD |
+|---|---:|---:|
+| Real vs. real baseline | 15.64 | 1.86 |
+| DDPM vs. real | **29.45** | **2.20** |
+| NCSN vs. real | 116.70 | 3.58 |
+| NCSN-EMA vs. real | 101.67 | 3.27 |
+| Extended NCSN vs. real | 102.88 | 3.48 |
+| Extended NCSN-EMA vs. real | 73.05 | 2.70 |
+
+Among the generated-image sets, DDPM produced the lowest FID and FRD. EMA improved both NCSN architectures, and the extended NCSN-EMA achieved the strongest results among the score-based model variants. 
+
+
+### Sensitivity analysis: 1,000 real reference images vs. 1,000 comparison images
+Additionall evaluation was performed using equally sized reference set of 1,000 images. This analysis was used to assess whether the observed model ranking remained stable when the real-reference sample size changed
 
 | Comparison | FID | FRD |
 |---|---:|---:|
@@ -37,7 +55,7 @@ Each model variant was used to generate 1,000 images from pure noise. FID and FR
 | Extended NCSN vs. real | 108.27 | 3.53 |
 | Extended NCSN-EMA vs. real | 78.65 | 2.74 |
 
-Among the generated-image sets, DDPM produced the lowest FID and FRD. EMA improved the NCSN results, and the extended NCSN with EMA further reduced both metrics relative to the original NCSN.
+The ranking of all generated-image distributions remained unchanged in the secondary 1,000-vs-1,000 evaluation. 
 
 ### Representative generated samples
 
