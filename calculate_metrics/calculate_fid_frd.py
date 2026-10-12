@@ -43,6 +43,8 @@ EXT_NCSN_EMA_GENERATED_DIR = Path("/PATH/TO/EXT-NCSN-EMA/GENERATED-IMAGES")
 OUTPUT_DIR = Path("/PATH/TO/SAVE-RESULTS-AT")
 
 # ================================ SETTINGS ======================================
+REAL_REFERENCE_SIZE = 2974 # Number of fixed reference images.
+COMPARISON_SIZE = 1000 # Number of images used in each comparison.
 SAMPLE_SIZE = 1000 # Number of images used in each comparison.
 IMAGE_SIZE = 128 # Images are converted to this common size.
 RESIZE_MODE = "stretch" # "stretch" = resize directly to IMAGE_SIZE x IMAGE_SIZE, also "pad" and "crop"
@@ -65,7 +67,8 @@ def main() -> None:
         ext_ncsn_dir=EXT_NCSN_GENERATED_DIR,
         ext_ncsn_ema_dir=EXT_NCSN_EMA_GENERATED_DIR,
         output_dir=OUTPUT_DIR,
-        sample_size=SAMPLE_SIZE,
+        real_reference_size=REAL_REFERENCE_SIZE,
+        comparison_size=COMPARISON_SIZE,
         image_size=IMAGE_SIZE,
         resize_mode=RESIZE_MODE,
         batch_size=FID_BATCH_SIZE,
