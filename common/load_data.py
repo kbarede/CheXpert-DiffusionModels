@@ -67,7 +67,7 @@ def load_chexpert(data_loc,img_size,target=None,limit_n=0):
 
     # set train & validation split
     # --> improve this by doing a stratified split
-    n_train = int(len(df_overview)*0.866666667)
+    n_train = int(len(df_overview)*0.7659)
     df_train = df_overview[:n_train]
     df_val = df_overview[n_train:].reset_index(drop=True)
 

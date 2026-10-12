@@ -42,7 +42,7 @@ model_path = os.path.join(results_path, "PATH/TO/CHECKPOINT.pth")
 IMG_SIZE = 128
 BATCH_SIZE = 16
 T = 1000 
-limitChexpertImage = 15000
+limitChexpertImage = 16974
 device = "cuda"
 
 # N images

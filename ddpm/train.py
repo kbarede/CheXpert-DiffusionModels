@@ -34,7 +34,7 @@ BATCH_SIZE = 16
 epochs = 100 #3000
 max_training_steps = 10000
 T = 1000 
-limitChexpertImage = 13000 
+limitChexpertImage = 16974
 learning_rate = 1e-4
 device = "cuda"
 

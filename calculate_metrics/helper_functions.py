@@ -1,5 +1,4 @@
-"""
-Functions to compare generated chest-X-ray with FID and FRDv1.
+"""Functions to compare generated chest-X-ray with FID and FRDv1.
 """
 
 from __future__ import annotations
@@ -15,6 +14,7 @@ import time
 from pathlib import Path
 from typing import Iterable, Sequence
 import torch
+
 
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
@@ -52,7 +52,7 @@ def find_images(directory: str | Path) -> list[Path]:
 
 
 def choose_images( paths: Sequence[Path], count: int, seed: int, group_name: str) -> list[Path]:
-    """Select fixed random subset from one image source -  number of selected image would match SAMPLE_SIZE"""
+    """Select fixed random subset from one image source"""
     if len(paths) < count:
         raise RuntimeError(
             f"{group_name} contains {len(paths)} images, but {count} are required."
@@ -64,29 +64,26 @@ def choose_images( paths: Sequence[Path], count: int, seed: int, group_name: str
 
 def choose_real_subsets(
     paths: Sequence[Path],
-    count: int,
+    reference_count: int,
+    baseline_count: int,
     seed: int,
     calculate_real_baseline: bool,
 ) -> tuple[list[Path], list[Path] | None]:
     """slecte the fixed real reference (set A) and an optional disjoint baseline set (set B)"""
-    if len(paths) < count:
+    required = reference_count + (baseline_count if calculate_real_baseline else 0)
+    if len(paths) < required:
         raise RuntimeError(
-            f"The real test folder contains {len(paths)} images, but {count} are required."
+            f"The real test folder contains {len(paths)} images, but {required} are required."
         )
 
     shuffled = list(paths)
     random.Random(seed).shuffle(shuffled)
-    reference = shuffled[:count]
-
-    if calculate_real_baseline and len(paths) >= 2 * count:
-        return reference, shuffled[count : 2 * count]
+    reference = shuffled[:reference_count]
 
     if calculate_real_baseline:
-        print(
-            "Warning: real-vs-real baseline skipped; it needs "
-            f"{2 * count} disjoint real images, but only {len(paths)} were found.",
-            file=sys.stderr,
-        )
+        baseline_end = reference_count + baseline_count
+        return reference, shuffled[reference_count:baseline_end]
+
     return reference, None
 
 
@@ -306,8 +303,17 @@ def print_summary(fid_scores: dict[str, float], frd_scores: dict[str, float]) ->
     for name in fid_scores:
         print(f"{name:<22} {fid_scores[name]:>14.6f} {frd_scores[name]:>14.6f}")
 
-    model_names = [name for name in ("ddpm_vs_real", "ncsn_vs_real") if name in fid_scores]
-    if len(model_names) == 2:
+    model_names = [name 
+                           for name in (
+            "ddpm_vs_real",
+            "ncsn_vs_real",
+            "ncsnEma_vs_real",
+            "extNcsn_vs_real",
+            "extNcsnEma_vs_real",
+        )
+        if name in fid_scores
+        ]
+    if model_names:
         best_fid = min(model_names, key=lambda name: fid_scores[name])
         best_frd = min(model_names, key=lambda name: frd_scores[name])
         print(f"\nLower FID: {best_fid.replace('_vs_real', '').upper()}")
@@ -315,7 +321,8 @@ def print_summary(fid_scores: dict[str, float], frd_scores: dict[str, float]) ->
 
 
 def validate_settings(
-    sample_size: int,
+    real_reference_size: int,
+    comparison_size: int,
     image_size: int,
     resize_mode: str,
     batch_size: int,
@@ -324,7 +331,8 @@ def validate_settings(
     device: str,
 ) -> None:
     for name, value in {
-        "SAMPLE_SIZE": sample_size,
+        "REAL_REFERENCE_SIZE": real_reference_size,
+        "COMPARISON_SIZE": comparison_size,
         "IMAGE_SIZE": image_size,
         "BATCH_SIZE": batch_size,
     }.items():
@@ -354,7 +362,8 @@ def run_evaluation(
     ext_ncsn_dir: str | Path,
     ext_ncsn_ema_dir: str | Path,
     output_dir: str | Path,
-    sample_size: int = 1000,
+    real_reference_size: int = 2974,
+    comparison_size: int = 1000,
     image_size: int = 128,
     resize_mode: str = "stretch",
     batch_size: int = 32,
@@ -367,7 +376,8 @@ def run_evaluation(
     verbose_frd: bool = False,
 ) -> dict:
     validate_settings(
-        sample_size,
+        real_reference_size,
+        comparison_size,
         image_size,
         resize_mode,
         batch_size,
@@ -407,16 +417,22 @@ def run_evaluation(
 
     real_reference, real_baseline = choose_real_subsets(
         real_all,
-        sample_size,
+        real_reference_size,
+        comparison_size,
         seed,
         calculate_real_baseline,
     )
+    print(
+        f"Selected: real reference={len(real_reference)}, "
+        f"each generated comparison={comparison_size}, "
+        f"real baseline={len(real_baseline) if real_baseline is not None else 0}"
+    )
 
-    ddpm = choose_images(ddpm_all, sample_size, seed + 1, "DDPM")
-    ncsn = choose_images(ncsn_all, sample_size, seed + 2, "NCSN")
-    ncsn_ema = choose_images(ncsn_ema_all, sample_size, seed + 3, "NCSN-EMA")
-    ext_ncsn = choose_images(ext_ncsn_all, sample_size, seed + 4, "extNCSN")
-    ext_ncsn_ema = choose_images(ext_ncsn_ema_all, sample_size, seed + 5, "extNCSN-EMA")
+    ddpm = choose_images(ddpm_all, comparison_size, seed + 1, "DDPM")
+    ncsn = choose_images(ncsn_all, comparison_size, seed + 2, "NCSN")
+    ncsn_ema = choose_images(ncsn_ema_all, comparison_size, seed + 3, "NCSN-EMA")
+    ext_ncsn = choose_images(ext_ncsn_all, comparison_size, seed + 4, "extNCSN")
+    ext_ncsn_ema = choose_images(ext_ncsn_ema_all, comparison_size, seed + 5, "extNCSN-EMA")
 
     selected_originals: dict[str, Sequence[Path]] = {
         "real_reference": real_reference,
@@ -470,7 +486,9 @@ def run_evaluation(
 
     elapsed_seconds = time.perf_counter() - started
     settings = {
-        "sample_size": sample_size,
+        "real_reference_size": real_reference_size,
+        "comparison_size": comparison_size,
+        "real_baseline_size": len(real_baseline) if real_baseline is not None else 0,
         "image_size": image_size,
         "resize_mode": resize_mode,
         "seed": seed,
