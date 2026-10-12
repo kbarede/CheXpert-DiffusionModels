@@ -1,7 +1,7 @@
 '''
 Code modified and adapted from:
     the diffusion model - DDPM
-    loading data:        https://gitlab.cir.meduniwien.ac.at:8888/cfuerboeck1/chexpert
+    loading data: meduni cir lab 
 '''
 from monai.data import DataLoader
 from common.load_data import load_chexpert
@@ -33,7 +33,7 @@ torch.backends.cudnn.enabled = False
 IMG_SIZE = 128
 BATCH_SIZE = 16 #16,4
 epochs = 200 #5000, 100
-limitChexpertImage = 15000 #15000, 8
+limitChexpertImage = 16974 #15000, 8
 learning_rate = 1e-4
 device = "cuda"
 
