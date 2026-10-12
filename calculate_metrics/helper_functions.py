@@ -1,5 +1,4 @@
-"""
-Functions to compare generated chest-X-ray with FID and FRDv1.
+"""Functions to compare generated chest-X-ray with FID and FRDv1.
 """
 
 from __future__ import annotations
@@ -15,6 +14,7 @@ import time
 from pathlib import Path
 from typing import Iterable, Sequence
 import torch
+
 
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
@@ -52,7 +52,7 @@ def find_images(directory: str | Path) -> list[Path]:
 
 
 def choose_images( paths: Sequence[Path], count: int, seed: int, group_name: str) -> list[Path]:
-    """Select fixed random subset from one image source """
+    """Select fixed random subset from one image source"""
     if len(paths) < count:
         raise RuntimeError(
             f"{group_name} contains {len(paths)} images, but {count} are required."
@@ -302,8 +302,9 @@ def print_summary(fid_scores: dict[str, float], frd_scores: dict[str, float]) ->
     print("-" * 52)
     for name in fid_scores:
         print(f"{name:<22} {fid_scores[name]:>14.6f} {frd_scores[name]:>14.6f}")
-        
-    model_names = [name for name in (
+
+    model_names = [name 
+                           for name in (
             "ddpm_vs_real",
             "ncsn_vs_real",
             "ncsnEma_vs_real",
@@ -312,7 +313,7 @@ def print_summary(fid_scores: dict[str, float], frd_scores: dict[str, float]) ->
         )
         if name in fid_scores
         ]
-    if len(model_names) == 2:
+    if model_names:
         best_fid = min(model_names, key=lambda name: fid_scores[name])
         best_frd = min(model_names, key=lambda name: frd_scores[name])
         print(f"\nLower FID: {best_fid.replace('_vs_real', '').upper()}")
@@ -427,11 +428,11 @@ def run_evaluation(
         f"real baseline={len(real_baseline) if real_baseline is not None else 0}"
     )
 
-    ddpm = choose_images(ddpm_all, sample_size, seed + 1, "DDPM")
-    ncsn = choose_images(ncsn_all, sample_size, seed + 2, "NCSN")
-    ncsn_ema = choose_images(ncsn_ema_all, sample_size, seed + 3, "NCSN-EMA")
-    ext_ncsn = choose_images(ext_ncsn_all, sample_size, seed + 4, "extNCSN")
-    ext_ncsn_ema = choose_images(ext_ncsn_ema_all, sample_size, seed + 5, "extNCSN-EMA")
+    ddpm = choose_images(ddpm_all, comparison_size, seed + 1, "DDPM")
+    ncsn = choose_images(ncsn_all, comparison_size, seed + 2, "NCSN")
+    ncsn_ema = choose_images(ncsn_ema_all, comparison_size, seed + 3, "NCSN-EMA")
+    ext_ncsn = choose_images(ext_ncsn_all, comparison_size, seed + 4, "extNCSN")
+    ext_ncsn_ema = choose_images(ext_ncsn_ema_all, comparison_size, seed + 5, "extNCSN-EMA")
 
     selected_originals: dict[str, Sequence[Path]] = {
         "real_reference": real_reference,
