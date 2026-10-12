@@ -38,7 +38,7 @@ checkpoint_path = os.path.join(results_path,"PATH/TO/CHECKPOINT.pth")
 IMG_SIZE = 128
 BATCH_SIZE = 16
 GEN_BATCH_SIZE = 8
-limitChexpertImage = 15000 #15000, 8
+limitChexpertImage = 16974 #15000, 8
 device = "cuda"
 
 #Num Images
