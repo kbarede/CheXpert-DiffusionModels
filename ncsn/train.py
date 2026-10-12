@@ -31,7 +31,7 @@ torch.backends.cudnn.enabled = False
 IMG_SIZE = 128
 BATCH_SIZE = 16 #16,4
 epochs = 100 #5000, 100
-limitChexpertImage = 15000 #15000, 8
+limitChexpertImage = 16974 #15000, 8
 learning_rate = 1e-4
 device = "cuda"
 
